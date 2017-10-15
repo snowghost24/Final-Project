@@ -23,7 +23,8 @@ if (process.env.JAWSDB_URL) {
       host: process.env.PRODUCTION_DB_HOST,
       user: process.env.PRODUCTION_DB_USER,
       password: process.env.PRODUCTION_DB_PASSWORD,
-      database: process.env.PRODUCTION_DB_NAME
+      database: process.env.PRODUCTION_DB_NAME,
+      port:PORT
     };
 } else {
     options = {
