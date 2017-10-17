@@ -1,3 +1,67 @@
+
+
+		 <h4 align="center">Speech to text converter in JS</h4>
+		<div id="result"></div>
+		<button onclick="startConverting();"><i class="fa fa-microphone"></i></button>
+      <div id="result2"></div>
+      
+		<script type="text/javascript">
+
+			var r = document.getElementById('result');
+         var r2 = document.getElementById('result2');
+			function startConverting () {
+				if('webkitSpeechRecognition' in window){
+					var speechRecognizer = new webkitSpeechRecognition();
+					speechRecognizer.continuous = true;
+					speechRecognizer.interimResults = true;
+					speechRecognizer.lang = 'en-IN';
+					speechRecognizer.start();
+
+					var finalTranscripts = '';
+
+					speechRecognizer.onresult = function(event){
+						var interimTranscripts = '';
+						for(var i = event.resultIndex; i < event.results.length; i++){
+							var transcript = event.results[i][0].transcript;
+							transcript.replace("\n", "<br>");
+							if(event.results[i].isFinal){
+                        submitTrans();
+							}else{
+								interimTranscripts += transcript;
+							}
+						}
+						r.innerHTML = finalTranscripts + '<span style="color:#999">' + interimTranscripts + '</span>';
+                  /*This is used to grab the inner html value*/
+                  r2.innerHTML = finalTranscripts + interimTranscripts
+					};
+					speechRecognizer.onerror = function (event) {
+					};
+				}else{
+					r.innerHTML = 'Your browser is not supported. If google chrome, please upgrade!';
+				}
+			}
+
+         /*This socket is used to send the info to the back end*/
+              function submitTrans (incoming){
+                 console.log(r2.innerHTML)
+              }
+			
+
+		</script>
+
+
+
+
+
+
+
+
+
+
+
+
+{{!-- 
+
 <input type="button" value="Stop speech command recognition" id="stop">
   <script>
     navigator.mediaDevices.getUserMedia({
@@ -14,7 +78,9 @@
 
           if (result.isFinal) {
             const [{transcript}] = result;
+            console.log("-------------------")
             console.log(transcript);
+             console.log("-------------------")
             synthesis.text = transcript;
             window.speechSynthesis.speak(synthesis);
           }
@@ -85,4 +151,4 @@
       .catch(err => {
         console.error(err)
       });
-  </script>
+  </script> --}}
