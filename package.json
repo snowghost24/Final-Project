@@ -29,6 +29,7 @@
     "express-handlebars": "^3.0.0",
     "express-mysql-session": "^1.2.2",
     "express-session": "^1.15.6",
-    "handlebars": "^4.0.10"
+    "handlebars": "^4.0.10",
+    "socket.io": "^2.0.3"
   }
 }

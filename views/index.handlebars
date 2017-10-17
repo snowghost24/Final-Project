@@ -1,154 +1,186 @@
+<h4 align="center">Speech to text converter in JS</h4>
+<div>
+   <div id="result"></div>
+   <button id="first-btn" onclick="startConverting();">
+      <i class="fa fa-microphone"></i>
+   </button>
+   <div id="result2"></div>
+</div>
 
 
-		 <h4 align="center">Speech to text converter in JS</h4>
-		<div id="result"></div>
-		<button onclick="startConverting();"><i class="fa fa-microphone"></i></button>
-      <div id="result2"></div>
-      
-		<script type="text/javascript">
+{{!-- socket div --}}
+<div id="chat">
+   <div id="chatOutput"></div>
+   <input type="text" name="" value="Jose" id="handle">
+   <input type="text" name="" id="messageId">
+   <input type="button" id="send" value="Send">
+</div>
 
-			var r = document.getElementById('result');
-         var r2 = document.getElementById('result2');
-			function startConverting () {
-				if('webkitSpeechRecognition' in window){
-					var speechRecognizer = new webkitSpeechRecognition();
-					speechRecognizer.continuous = true;
-					speechRecognizer.interimResults = true;
-					speechRecognizer.lang = 'en-IN';
-					speechRecognizer.start();
+<script type="text/javascript">
+   var r = document.getElementById('result');
+   var r2 = document.getElementById('result2');
+   function startConverting() {
+      if ('webkitSpeechRecognition' in window) {
+         var speechRecognizer = new webkitSpeechRecognition();
+         speechRecognizer.continuous = true;
+         speechRecognizer.interimResults = true;
+         speechRecognizer.lang = 'en-IN';
+         speechRecognizer.start();
 
-					var finalTranscripts = '';
-
-					speechRecognizer.onresult = function(event){
-						var interimTranscripts = '';
-						for(var i = event.resultIndex; i < event.results.length; i++){
-							var transcript = event.results[i][0].transcript;
-							transcript.replace("\n", "<br>");
-							if(event.results[i].isFinal){
-                        submitTrans();
-							}else{
-								interimTranscripts += transcript;
-							}
-						}
-						r.innerHTML = finalTranscripts + '<span style="color:#999">' + interimTranscripts + '</span>';
-                  /*This is used to grab the inner html value*/
-                  r2.innerHTML = finalTranscripts + interimTranscripts
-					};
-					speechRecognizer.onerror = function (event) {
-					};
-				}else{
-					r.innerHTML = 'Your browser is not supported. If google chrome, please upgrade!';
-				}
-			}
-
-         /*This socket is used to send the info to the back end*/
-              function submitTrans (incoming){
-                 console.log(r2.innerHTML)
-              }
-			
-
-		</script>
+         var finalTranscripts = '';
+         speechRecognizer.onresult = function (event) {
+            var interimTranscripts = '';
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+               var transcript = event.results[i][0].transcript;
+               transcript.replace("\n", "<br>");
+               if (event.results[i].isFinal) {
+                  submitTrans();
+               } else {
+                  interimTranscripts += transcript;
+               }
+            }
+            r.innerHTML = finalTranscripts + '<span style="color:#999">' + interimTranscripts + '</span>';
+            /*This is used to grab the inner html value*/
+            r2.innerHTML = finalTranscripts + interimTranscripts
+         };
+         speechRecognizer.onerror = function (event) {
+         };
+      } else {
+         r.innerHTML = 'Your browser is not supported. If google chrome, please upgrade!';
+      }
+   }
 
 
+   /*make socket connection*/
+   /*
+   var socket = io.connect('http://localhost:8080');
+
+   */
+    var socket = io.connect('https://pure-castle-65829.herokuapp.com/'); 
+
+   /*QUERY THE DOM */
+   var message = document.getElementById('messageId');
+   var handle = document.getElementById('handle');
+   var btn = document.getElementById('send');
+   var chatOutput = document.getElementById('chatOutput')
 
 
+function submitTrans(incoming) {
+      console.log(r2.innerHTML);
+       socket.emit('chat', {
+         message: r2.innerHTML,
+         handle: handle.value
+      })
 
+   }
 
+      /*lister for events*/
+   socket.on('chat', function (data) {
+      chatOutput.innerHTML += '<p><strong>' + data.handle + ': </strong>' + data.message + '</p>'
+   })
 
+   /*
+   btn.addEventListener('click', function () {
+      socket.emit('chat', {
+         message: message.value,
+         handle: handle.value
+      })
+   })
 
+*/
+   /*This socket is used to send the info to the back end*/
+ 
+</script> 
 
-
-
-
-{{!-- 
+{{!--
 
 <input type="button" value="Stop speech command recognition" id="stop">
-  <script>
-    navigator.mediaDevices.getUserMedia({
-        audio: true
-      })
+<script>
+   navigator.mediaDevices.getUserMedia({
+      audio: true
+   })
       .then(stream => {
-        const recorder = new MediaRecorder(stream);
-        const recognition = new webkitSpeechRecognition();
-        const synthesis = new SpeechSynthesisUtterance();
-        const handleResult = e => {
-          recognition.onresult = null;
-          console.log(e.results);
-          const result = e.results[e.results.length - 1];
+         const recorder = new MediaRecorder(stream);
+         const recognition = new webkitSpeechRecognition();
+         const synthesis = new SpeechSynthesisUtterance();
+         const handleResult = e => {
+            recognition.onresult = null;
+            console.log(e.results);
+            const result = e.results[e.results.length - 1];
 
-          if (result.isFinal) {
-            const [{transcript}] = result;
-            console.log("-------------------")
-            console.log(transcript);
-             console.log("-------------------")
-            synthesis.text = transcript;
-            window.speechSynthesis.speak(synthesis);
-          }
-        }
-        synthesis.onstart = () => {
-          if (recorder.state === "inactive") {
-            recorder.start()
-          } else {
-            if (recorder.state === "paused") {
-              recorder.resume();
+            if (result.isFinal) {
+               const [{ transcript }] = result;
+               console.log("-------------------")
+               console.log(transcript);
+               console.log("-------------------")
+               synthesis.text = transcript;
+               window.speechSynthesis.speak(synthesis);
             }
-          }
-        }
-        synthesis.onend = () => {
-          recorder.pause();
-          recorder.requestData();
-        }
-        recorder.ondataavailable = async(e) => {
-          if (stream.active) {
-            try {
-              const blobURL = URL.createObjectURL(e.data);
-              const request = await fetch(blobURL);
-              const ab = await request.arrayBuffer();
-              console.log(blobURL, ab);
-              recognition.onresult = handleResult;
-              // URL.revokeObjectURL(blobURL);
-            } catch (err) {
-              throw err
+         }
+         synthesis.onstart = () => {
+            if (recorder.state === "inactive") {
+               recorder.start()
+            } else {
+               if (recorder.state === "paused") {
+                  recorder.resume();
+               }
             }
-          }
-        }
-        recorder.onpause = e => {
-          console.log("recorder " + recorder.state);
-        }
-        recognition.continuous = true;
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-        recognition.start();
-        recognition.onend = e => {
-          console.log("recognition ended, stream.active", stream.active);
-
-          if (stream.active) {
-            console.log(e);
-            // the service disconnects after a period of time
-            recognition.start();
-          }
-        }
-        recognition.onresult = handleResult;
-
-        stream.oninactive = () => {
-          console.log("stream ended");
-        }
-
-        document.getElementById("stop")
-          .onclick = () => {
-            console.log("stream.active:", stream.active);
-            if (stream && stream.active && recognition) {
-              recognition.abort();
-              recorder.stop();
-              for (let track of stream.getTracks()) {
-                track.stop();
-              }
-              console.log("stream.active:", stream.active);
+         }
+         synthesis.onend = () => {
+            recorder.pause();
+            recorder.requestData();
+         }
+         recorder.ondataavailable = async (e) => {
+            if (stream.active) {
+               try {
+                  const blobURL = URL.createObjectURL(e.data);
+                  const request = await fetch(blobURL);
+                  const ab = await request.arrayBuffer();
+                  console.log(blobURL, ab);
+                  recognition.onresult = handleResult;
+                  // URL.revokeObjectURL(blobURL);
+               } catch (err) {
+                  throw err
+               }
             }
-          }
+         }
+         recorder.onpause = e => {
+            console.log("recorder " + recorder.state);
+         }
+         recognition.continuous = true;
+         recognition.interimResults = false;
+         recognition.maxAlternatives = 1;
+         recognition.start();
+         recognition.onend = e => {
+            console.log("recognition ended, stream.active", stream.active);
+
+            if (stream.active) {
+               console.log(e);
+               // the service disconnects after a period of time
+               recognition.start();
+            }
+         }
+         recognition.onresult = handleResult;
+
+         stream.oninactive = () => {
+            console.log("stream ended");
+         }
+
+         document.getElementById("stop")
+            .onclick = () => {
+               console.log("stream.active:", stream.active);
+               if (stream && stream.active && recognition) {
+                  recognition.abort();
+                  recorder.stop();
+                  for (let track of stream.getTracks()) {
+                     track.stop();
+                  }
+                  console.log("stream.active:", stream.active);
+               }
+            }
 
       })
       .catch(err => {
-        console.error(err)
+         console.error(err)
       });
-  </script> --}}
+</script> --}}

@@ -3,6 +3,7 @@ var app = express();
 var exphbs = require('express-handlebars');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
+var socket = require('socket.io')
 require('dotenv').config()
 
 // mysql is required in the connection file 
@@ -48,76 +49,6 @@ app.use(session({
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // ────────TEXT TO SPEECH ────────────────────────────────────────────────────────────────────────
-
-// Imports the Google Cloud client library
-// const Speech = require('@google-cloud/speech');
-// const fs = require('fs');
-
-// // Your Google Cloud Platform project ID
-// const projectId = 'your-project-id';
-
-// // Instantiates a client
-// const speechClient = Speech({
-//   projectId: projectId
-// });
-
-// // The name of the audio file to transcribe
-// const fileName = './resources/audio.raw';
-
-// // Reads a local audio file and converts it to base64
-// const file = fs.readFileSync(fileName);
-// const audioBytes = file.toString('base64');
-
-// // The audio file's encoding, sample rate in hertz, and BCP-47 language code
-// const audio = {
-//   content: audioBytes
-// };
-// const config = {
-//   encoding: 'LINEAR16',
-//   sampleRateHertz: 16000,
-//   languageCode: 'en-US'
-// };
-// const request = {
-//   audio: audio,
-//   config: config
-// };
-
-// // Detects speech in the audio file
-// speechClient.recognize(request)
-//   .then((data) => {
-//     const response = data[0];
-//     const transcription = response.results.map(result =>
-//         result.alternatives[0].transcript).join('\n');
-//     console.log(`Transcription: ${transcription}`);
-//   })
-//   .catch((err) => {
-//     console.error('ERROR:', err);
-//   });
-
-
-
-
-
 // ──────────GOOOGLE TRANSLATER ──────────────────────────────────────────────
 
 //TODO:view google translate documentation in the following link.
@@ -155,6 +86,18 @@ app.use(session({
 
 
 
-  app.listen(PORT,() => {
+  var server = app.listen(PORT,() => {
     console.log(`You are listening through port ${PORT}`);
- })
+ });
+
+
+ var io = socket(server);
+ io.on('connection', function(socket){
+  console.log(`made connection ${socket.id}` );
+
+  socket.on('chat',function(data){
+io.sockets.emit('chat', data);
+  })
+ });
+
+
