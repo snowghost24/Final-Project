@@ -1,192 +1,124 @@
 <h4 align="center">Speech to text converter in JS</h4>
 <div>
-   <div id="result"></div>
-   <button id="first-btn" onclick="startConverting();">
-      <i class="fa fa-microphone"></i>
-   </button>
-   <div id="result2"></div>
+  <div id="result"></div>
+  <button id="first-btn" onclick="startConverting();">
+    <i class="fa fa-microphone"></i>
+  </button>
+  <div id="result2"></div>
 </div>
 
 
 {{!-- socket div --}}
 <div id="chat">
-   <div id="chatOutput"></div>
-   <input type="text" name="" value="Jose" id="handle">
-   <input type="text" name="" id="messageId">
-   <input type="button" id="send" value="Send">
+  <div id="chatOutput"></div>
+  <input type="text" name="" value="Jose" id="handle">
+  <input type="text" name="" id="messageId">
+  <input type="button" id="send" value="Send">
 </div>
 
+
 <script type="text/javascript">
-   var r = document.getElementById('result');
-   var r2 = document.getElementById('result2');
-   function startConverting() {
-      if ('webkitSpeechRecognition' in window) {
-         var speechRecognizer = new webkitSpeechRecognition();
-         speechRecognizer.continuous = true;
-         speechRecognizer.interimResults = true;
-         speechRecognizer.lang = 'en-IN';
-         speechRecognizer.start();
+  var street = encodeURIComponent(" 2514 hiker court");
+  var city = encodeURIComponent("kissimmee FL");
+  var count = 10;
+  var zpid = 48749425;
 
-         var finalTranscripts = '';
-         speechRecognizer.onresult = function (event) {
-            var interimTranscripts = '';
-            for (var i = event.resultIndex; i < event.results.length; i++) {
-               var transcript = event.results[i][0].transcript;
-               transcript.replace("\n", "<br>");
-               if (event.results[i].isFinal) {
-                  submitTrans();
-               } else {
-                  interimTranscripts += transcript;
-               }
-            }
-            r.innerHTML = finalTranscripts + '<span style="color:#999">' + interimTranscripts + '</span>';
-            /*This is used to grab the inner html value*/
-            r2.innerHTML = finalTranscripts + interimTranscripts
-         };
-         speechRecognizer.onerror = function (event) {
-         };
-      } else {
-         r.innerHTML = 'Your browser is not supported. If google chrome, please upgrade!';
+
+  $.ajax({
+    type: 'POST',
+    url: `http://www.zillow.com/webservice/GetSearchResults.htm?zws-id=X1-ZWz18yof9snguj_4eq90&address=${street}&citystatezip=${city}`,
+    dataType: "xml",
+    success: function (xmlDoc) {
+      var x2js = new X2JS();
+      var jsonObj = x2js.xml2json(xmlDoc);
+      var theZip = jsonObj.searchresults.response.results.result.zpid;
+      console.log(theZip);
+      nextCall(theZip)
+    }
+  });
+
+  function nextCall(theZip) {
+    $.ajax({
+      type: 'POST',
+      url: `http://www.zillow.com/webservice/GetDeepComps.htm?zws-id=X1-ZWz18yof9snguj_4eq90&zpid=${theZip}&count=10&rentzestimate=true`,
+      dataType: "xml",
+      success: function (xmlDoc) {
+        var x2js = new X2JS();
+        var jsonObj = x2js.xml2json(xmlDoc);
+        var responseArray = jsonObj.comps.response.properties.comparables.comp;
+        for (i = 0; i < responseArray.length; i++) {
+          console.log(responseArray[i]);
+        }
       }
-   }
+    });
+  }
 
 
-   /*make socket connection*/
-   /*
- var socket = io.connect('http://localhost:8080');
 
-   */
+  var r = document.getElementById('result');
+  var r2 = document.getElementById('result2');
+  function startConverting() {
+    if ('webkitSpeechRecognition' in window) {
+      var speechRecognizer = new webkitSpeechRecognition();
+      speechRecognizer.continuous = true;
+      speechRecognizer.interimResults = true;
+      speechRecognizer.lang = 'en-IN';
+      speechRecognizer.start();
 
-  var socket = io.connect('https://pure-castle-65829.herokuapp.com/'); 
-   /*
+      var finalTranscripts = '';
+      speechRecognizer.onresult = function (event) {
+        var interimTranscripts = '';
+        for (var i = event.resultIndex; i < event.results.length; i++) {
+          var transcript = event.results[i][0].transcript;
+          transcript.replace("\n", "<br>");
+          if (event.results[i].isFinal) {
+            submitTrans();
+          } else {
+            interimTranscripts += transcript;
+          }
+        }
+        r.innerHTML = finalTranscripts + '<span style="color:#999">' + interimTranscripts + '</span>';
+        /*This is used to grab the inner html value*/
+        r2.innerHTML = finalTranscripts + interimTranscripts
+      };
+      speechRecognizer.onerror = function (event) {
+      };
+    } else {
+      r.innerHTML = 'Your browser is not supported. If google chrome, please upgrade!';
+    }
+  }
 
-   */
 
-    
-
-   /*QUERY THE DOM */
-   var message = document.getElementById('messageId');
-   var handle = document.getElementById('handle');
-   var btn = document.getElementById('send');
-   var chatOutput = document.getElementById('chatOutput')
-
-
-function submitTrans(incoming) {
-      console.log(r2.innerHTML);
-       socket.emit('chat', {
-         message: r2.innerHTML,
-         handle: handle.value
-      })
-
-   }
-
-      /*lister for events*/
-   socket.on('chat', function (data) {
-      chatOutput.innerHTML += '<p><strong>' + data.handle + ': </strong>' + data.message + '</p>'
-   })
-
-   /*
-   btn.addEventListener('click', function () {
-      socket.emit('chat', {
-         message: message.value,
-         handle: handle.value
-      })
-   })
-
+  /*make socket connection*/
+  /*
 */
-   /*This socket is used to send the info to the back end*/
- 
+  var socket = io.connect('http://localhost:8080');
+
+  /*
+ var socket = io.connect('https://pure-castle-65829.herokuapp.com/'); 
+  */
+
+
+
+  /*QUERY THE DOM */
+  var message = document.getElementById('messageId');
+  var handle = document.getElementById('handle');
+  var btn = document.getElementById('send');
+  var chatOutput = document.getElementById('chatOutput')
+
+
+  function submitTrans() {
+    console.log(r2.innerHTML);
+    socket.emit('chat', {
+      message: r2.innerHTML,
+      handle: handle.value
+    })
+
+  }
+
+  /*listens for emits from back end */
+  socket.on('chat', function (data) {
+    chatOutput.innerHTML += '<p><strong>' + data.chatData.handle + ': </strong>' + data.chatData.message + data.transText + '</p>'
+  })
+
 </script> 
-
-{{!--
-
-<input type="button" value="Stop speech command recognition" id="stop">
-<script>
-   navigator.mediaDevices.getUserMedia({
-      audio: true
-   })
-      .then(stream => {
-         const recorder = new MediaRecorder(stream);
-         const recognition = new webkitSpeechRecognition();
-         const synthesis = new SpeechSynthesisUtterance();
-         const handleResult = e => {
-            recognition.onresult = null;
-            console.log(e.results);
-            const result = e.results[e.results.length - 1];
-
-            if (result.isFinal) {
-               const [{ transcript }] = result;
-               console.log("-------------------")
-               console.log(transcript);
-               console.log("-------------------")
-               synthesis.text = transcript;
-               window.speechSynthesis.speak(synthesis);
-            }
-         }
-         synthesis.onstart = () => {
-            if (recorder.state === "inactive") {
-               recorder.start()
-            } else {
-               if (recorder.state === "paused") {
-                  recorder.resume();
-               }
-            }
-         }
-         synthesis.onend = () => {
-            recorder.pause();
-            recorder.requestData();
-         }
-         recorder.ondataavailable = async (e) => {
-            if (stream.active) {
-               try {
-                  const blobURL = URL.createObjectURL(e.data);
-                  const request = await fetch(blobURL);
-                  const ab = await request.arrayBuffer();
-                  console.log(blobURL, ab);
-                  recognition.onresult = handleResult;
-                  // URL.revokeObjectURL(blobURL);
-               } catch (err) {
-                  throw err
-               }
-            }
-         }
-         recorder.onpause = e => {
-            console.log("recorder " + recorder.state);
-         }
-         recognition.continuous = true;
-         recognition.interimResults = false;
-         recognition.maxAlternatives = 1;
-         recognition.start();
-         recognition.onend = e => {
-            console.log("recognition ended, stream.active", stream.active);
-
-            if (stream.active) {
-               console.log(e);
-               // the service disconnects after a period of time
-               recognition.start();
-            }
-         }
-         recognition.onresult = handleResult;
-
-         stream.oninactive = () => {
-            console.log("stream ended");
-         }
-
-         document.getElementById("stop")
-            .onclick = () => {
-               console.log("stream.active:", stream.active);
-               if (stream && stream.active && recognition) {
-                  recognition.abort();
-                  recorder.stop();
-                  for (let track of stream.getTracks()) {
-                     track.stop();
-                  }
-                  console.log("stream.active:", stream.active);
-               }
-            }
-
-      })
-      .catch(err => {
-         console.error(err)
-      });
-</script> --}}
