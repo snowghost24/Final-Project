@@ -1,35 +1,45 @@
+// ───────FRONT END  AJAX REQUEST TO ZILLOW─────────────────────────────────────────────────────────────────────────
 
-   // <input type="button" value="Stop speech command recognition" id="stop">
-   // <script>
-   
-   //    function turnToXml(results){
-      
-   //   $.ajax({
-   //       url:"/house",
-   //       data: results
-   //     }).done(function(results) {
-   //       console.log(results)
-         
-   //     });
-   //    }
-     
-   
-   //   btn.addEventListener('click', function () {
-   //      socket.emit('chat', {
-   //         message: message.value,
-   //         handle: handle.value
-   //      })
-   //   })
-   
+/*
+var street = encodeURIComponent(" 2514 hiker court");
+var city = encodeURIComponent("kissimmee FL");
+var count = 10;
+var zpid = 48749425;
 
-   
-   
-   
-   // chatOutput.innerHTML += '<p><strong>' + data.chatData.handle + ': </strong>' + data.chatData.message + data.transText.text +'</p>'
-          
-   //         chatOutput.innerHTML += '<p><strong>' + data.chatData.handle + ': </strong>' + data.transText +'</p>'
-          
-          
+
+$.ajax({
+  type: 'POST',
+  url: `http://www.zillow.com/webservice/GetSearchResults.htm?zws-id=X1-ZWz18yof9snguj_4eq90&address=${street}&citystatezip=${city}`,
+  dataType: "xml",
+  success: function (xmlDoc) {
+    var x2js = new X2JS();
+    var jsonObj = x2js.xml2json(xmlDoc);
+    var theZip = jsonObj.searchresults.response.results.result.zpid;
+    console.log(theZip);
+    nextCall(theZip)
+  }
+});
+
+function nextCall(theZip) {
+  $.ajax({
+    type: 'POST',
+    url: `http://www.zillow.com/webservice/GetDeepComps.htm?zws-id=X1-ZWz18yof9snguj_4eq90&zpid=${theZip}&count=10&rentzestimate=true`,
+    dataType: "xml",
+    success: function (xmlDoc) {
+      var x2js = new X2JS();
+      var jsonObj = x2js.xml2json(xmlDoc);
+      var responseArray = jsonObj.comps.response.properties.comparables.comp;
+      for (i = 0; i < responseArray.length; i++) {
+        console.log(responseArray[i]);
+      }
+    }
+  });
+}
+
+*/
+
+// ───────VOICE EMITTER CODE─────────────────────────────────────────────
+
    
    //   navigator.mediaDevices.getUserMedia({
    //     audio: true

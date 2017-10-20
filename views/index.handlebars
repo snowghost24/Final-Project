@@ -1,124 +1,28 @@
-<h4 align="center">Speech to text converter in JS</h4>
-<div>
-  <div id="result"></div>
-  <button id="first-btn" onclick="startConverting();">
-    <i class="fa fa-microphone"></i>
-  </button>
-  <div id="result2"></div>
+<link rel="stylesheet" type="text/css" href="/css/index.css">
+
+
+<div class="container">
+  <div id="myimg">
+    <img src="/images/namelogo.png" alt="">
+    <img id='watson-logo' src="/images/watsoncolor.gif" alt="">
+  </div>
+<div id="output"></div>
+  <h6 align="center">Recognized Text</h6>
+  
 </div>
+  <div>
+    <div id="recognizedText"></div>
+    <button id="first-btn" onclick="startConverting();">
+      <i class="fa fa-microphone"></i>
+    </button>
+    <div id="recognizedText2"></div>
+  </div>
 
-
-{{!-- socket div --}}
-<div id="chat">
+  {{!-- displays socket response--}}
   <div id="chatOutput"></div>
-  <input type="text" name="" value="Jose" id="handle">
-  <input type="text" name="" id="messageId">
-  <input type="button" id="send" value="Send">
-</div>
+  <input type="text" name="" value="Jose" id="handle" display="none">
+  <input type="text" name="" id="messageId" display="none">
+  {{!-- this div emmits response from watson --}}
 
 
-<script type="text/javascript">
-  var street = encodeURIComponent(" 2514 hiker court");
-  var city = encodeURIComponent("kissimmee FL");
-  var count = 10;
-  var zpid = 48749425;
-
-
-  $.ajax({
-    type: 'POST',
-    url: `http://www.zillow.com/webservice/GetSearchResults.htm?zws-id=X1-ZWz18yof9snguj_4eq90&address=${street}&citystatezip=${city}`,
-    dataType: "xml",
-    success: function (xmlDoc) {
-      var x2js = new X2JS();
-      var jsonObj = x2js.xml2json(xmlDoc);
-      var theZip = jsonObj.searchresults.response.results.result.zpid;
-      console.log(theZip);
-      nextCall(theZip)
-    }
-  });
-
-  function nextCall(theZip) {
-    $.ajax({
-      type: 'POST',
-      url: `http://www.zillow.com/webservice/GetDeepComps.htm?zws-id=X1-ZWz18yof9snguj_4eq90&zpid=${theZip}&count=10&rentzestimate=true`,
-      dataType: "xml",
-      success: function (xmlDoc) {
-        var x2js = new X2JS();
-        var jsonObj = x2js.xml2json(xmlDoc);
-        var responseArray = jsonObj.comps.response.properties.comparables.comp;
-        for (i = 0; i < responseArray.length; i++) {
-          console.log(responseArray[i]);
-        }
-      }
-    });
-  }
-
-
-
-  var r = document.getElementById('result');
-  var r2 = document.getElementById('result2');
-  function startConverting() {
-    if ('webkitSpeechRecognition' in window) {
-      var speechRecognizer = new webkitSpeechRecognition();
-      speechRecognizer.continuous = true;
-      speechRecognizer.interimResults = true;
-      speechRecognizer.lang = 'en-IN';
-      speechRecognizer.start();
-
-      var finalTranscripts = '';
-      speechRecognizer.onresult = function (event) {
-        var interimTranscripts = '';
-        for (var i = event.resultIndex; i < event.results.length; i++) {
-          var transcript = event.results[i][0].transcript;
-          transcript.replace("\n", "<br>");
-          if (event.results[i].isFinal) {
-            submitTrans();
-          } else {
-            interimTranscripts += transcript;
-          }
-        }
-        r.innerHTML = finalTranscripts + '<span style="color:#999">' + interimTranscripts + '</span>';
-        /*This is used to grab the inner html value*/
-        r2.innerHTML = finalTranscripts + interimTranscripts
-      };
-      speechRecognizer.onerror = function (event) {
-      };
-    } else {
-      r.innerHTML = 'Your browser is not supported. If google chrome, please upgrade!';
-    }
-  }
-
-
-  /*make socket connection*/
-  /*
-*/
-  var socket = io.connect('http://localhost:8080');
-
-  /*
- var socket = io.connect('https://pure-castle-65829.herokuapp.com/'); 
-  */
-
-
-
-  /*QUERY THE DOM */
-  var message = document.getElementById('messageId');
-  var handle = document.getElementById('handle');
-  var btn = document.getElementById('send');
-  var chatOutput = document.getElementById('chatOutput')
-
-
-  function submitTrans() {
-    console.log(r2.innerHTML);
-    socket.emit('chat', {
-      message: r2.innerHTML,
-      handle: handle.value
-    })
-
-  }
-
-  /*listens for emits from back end */
-  socket.on('chat', function (data) {
-    chatOutput.innerHTML += '<p><strong>' + data.chatData.handle + ': </strong>' + data.chatData.message + data.transText + '</p>'
-  })
-
-</script> 
+<script src="chat.js"></script>

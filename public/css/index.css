@@ -1,0 +1,59 @@
+/* this is the css for the index.handlebars file */
+
+body{
+   font-family: verdana;
+ background-color: black;
+}
+#recognizedText{
+   height: 50px;
+   border: 1px solid #ccc;
+   padding: 10px;
+   box-shadow: 0 0 2px 0 #bbb;
+   margin-bottom: 30px;
+   font-size: 14px;
+   line-height: 25px;
+background: white;
+border-radius: 4px;
+
+}
+
+#first-btn{
+   font-size: 20px;
+color:red;
+box-shadow: 0 0 5px 0 #bbb;
+    border: 1px solid #ccc;
+   position: absolute;
+   top: 450px;
+   left: 50%; 
+}
+
+#handle,#messageId{
+   display: none;
+}
+
+#watson-logo {
+height: 300px;
+width: auto;
+margin-top: 0px;
+}
+
+#myimg {
+display: flex;
+justify-content: center;
+}
+
+#output1 {
+background-color: white;
+}
+
+#output {
+background-color: black;
+text-align: center;
+color: white;
+}
+
+#send{
+background-color: #0790dd;
+border-color: yellow;
+
+}
