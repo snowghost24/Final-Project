@@ -5,6 +5,9 @@ var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var socket = require('socket.io');
 var bodyParser = require('body-parser');
+var watson = require('watson-developer-cloud');
+var ConversationV1 = require('watson-developer-cloud/conversation/v1');
+var axios = require('axios');
 require('dotenv').config()
 // mysql is required in the connection file 
 
