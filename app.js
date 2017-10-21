@@ -226,7 +226,10 @@ var conversation = new ConversationV1({
           userData = collectedValues;
           console.log(userData);
           var routes = require("./routes/controller.js")
-          axios.get('http://localhost:8080/made', {
+        
+
+
+          axios.post('http://localhost:8080/made', {
             responseData: userData
           })
           .then(function (response) {
