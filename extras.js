@@ -1,3 +1,34 @@
+ 
+ 
+ 
+ 
+   // axios.post(`http://www.zillow.com/webservice/GetSearchResults.htm?zws-id=X1-ZWz18yof9snguj_4eq90&address=${street}&citystatezip=${city}`)
+  // .then(function (response) {
+  // //   console.log(response.data);
+  //   var theData = response.data;
+  //   parseString(theData, {trim: true}, function (err, result) {
+  //         // var theZpid = result['SearchResults:searchresults'].response[0].results[0].result[0].zpid[0];
+  //         var soldDate = result['SearchResults:searchresults'].response[0].results[0].result[0].zestimate[0]
+  //         console.log(soldDate);
+  // });
+  // })
+  // .catch(function (error) {
+  //   console.log(error);
+  // });
+
+ 
+ 
+ 
+ 
+ // ────────────────────────────────────────────────────────────────────────────────
+
+ 
+ // app.get("/api/apiRoutes", function(req, res) {
+  //  console.log(userData);
+  //   // res.json(properties);
+  // });
+
+
 // ───────FRONT END  AJAX REQUEST TO ZILLOW─────────────────────────────────────────────────────────────────────────
 
 /*

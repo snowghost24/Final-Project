@@ -55,5 +55,8 @@ color: white;
 #send{
 background-color: #0790dd;
 border-color: yellow;
+}
 
+#hbData {
+  color: white;
 }

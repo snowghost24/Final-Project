@@ -1,7 +1,7 @@
 <link rel="stylesheet" type="text/css" href="/css/index.css">
 
 
-<div class="container">
+<div class="container-fluid">
   <div id="myimg">
     <img src="/images/namelogo.png" alt="">
     <img id='watson-logo' src="/images/watsoncolor.gif" alt="">
@@ -9,7 +9,6 @@
 <div id="output"></div>
   <h6 align="center">Recognized Text</h6>
   
-</div>
   <div>
     <div id="recognizedText"></div>
     <button id="first-btn" onclick="startConverting();">
@@ -23,6 +22,10 @@
   <input type="text" name="" value="Jose" id="handle" display="none">
   <input type="text" name="" id="messageId" display="none">
   {{!-- this div emmits response from watson --}}
-
+<div>
+  {{#if hbData}}
+  <p id="hbData"> {{hbData}}</p>
+    {{/if}}
+ </div> 
 
 <script src="chat.js"></script>

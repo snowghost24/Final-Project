@@ -215,9 +215,61 @@ var conversation = new ConversationV1({
         // makes sure values for questions are set
         sentQuestions = response.output.text[0];
         setQuestion(sentQuestions);
+
+
+        //Here I collect all values for information on a house
+        if (response.context.address && response.context.city && response.context.state && response.context.dateSold == true) {
+          collectedValues.push(response.context.address);
+          collectedValues.push(response.context.city);
+          collectedValues.push(response.context.state);
+          collectedValues.push(response.context.dateSold);
+          userData = collectedValues;
+          console.log(userData);
+          var routes = require("./routes/controller.js")
+          axios.get('http://localhost:8080/made', {
+            responseData: userData
+          })
+          .then(function (response) {
+            // console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+          // axios.post('/', {
+          //   firstName:userData
+          // })
+          // .then(function (response) {
+          //   // console.log(response);
+          // })
+          // .catch(function (error) {
+          //   console.log(error);
+          // });
+          // require("./routes/apiRoutes")(app, userData);
+          // axios({
+          //   method: 'post',
+          //   url: '/voice',
+          //   data:userData
+          // });
+          // console.log("-----------results--------------");
+          //   console.log(response.context.dateSold );
+          // console.log("-------------------------");
+        }
   
-  
-        // here I collect all values entered into watson
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        // here I collect all values to finding an apartment
         if (response.context.location && response.context.rooms && response.context.houseorapp && response.context.currency && response.context.residencetype) {
           collectedValues.push(response.context.location);
           collectedValues.push(response.context.houseorapp);
@@ -226,7 +278,7 @@ var conversation = new ConversationV1({
           collectedValues.push(response.context.currency);
           console.log("these are collected values", collectedValues);
           userData = collectedValues;
-          require("./routing/apiRoutes")(app, userData);
+          require("./routes/apiRoutes")(app, userData);
         }
       }
     }
