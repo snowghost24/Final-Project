@@ -8,7 +8,10 @@ var bodyParser = require('body-parser');
 var watson = require('watson-developer-cloud');
 var ConversationV1 = require('watson-developer-cloud/conversation/v1');
 var axios = require('axios');
-require('dotenv').config()
+var morgan = require('morgan');
+
+require('dotenv').config();
+app.use(morgan('dev'));
 // mysql is required in the connection file 
 
 var PORT = process.env.PORT || 8080;
@@ -20,8 +23,7 @@ app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 
 
-var routes = require("./routes/controller.js")
-app.use("/", routes);
+
 
 // ───────SESSION STORAGE CONNECTTION─────────────────────────────────
 
@@ -140,7 +142,14 @@ function setQuestion(sentQuestions1) {
 var server = app.listen(PORT, () => {
     console.log(`You are listening through port ${PORT}`);
 });
-var io = socket(server);
+// var io = socket(server);
+var io = require('socket.io')(server);
+// next line is the money
+app.set('socketio', io);
+var routes = require("./routes/controller.js")
+app.use("/", routes);
+
+require("./routes/apiRoutes.js")(app,io)
 io.on('connection', function (socket) {
     console.log(`made connection ${socket.id}`);
 // ────────────────────────────────────────────────────────────────────────────────
@@ -173,6 +182,7 @@ var x = 1
     })
 });
 
+// module.parent.exports.server
 // this function sends back watson's response through a channel
 runIo = function () { io.sockets.emit('chat', newData); }
 

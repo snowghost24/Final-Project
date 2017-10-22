@@ -44,6 +44,7 @@ var message = document.getElementById('messageId');
 var handle = document.getElementById('handle');
 var btn = document.getElementById('send');
 var chatOutput = document.getElementById('chatOutput');
+var comingBack = document.getElementById('comingBack');
 // This div emmits messages coming back from watson
 var output = document.getElementById('output');
 /*Takes the message collected by voice recg and emit via socket */
@@ -67,6 +68,10 @@ socket.on('voicechat', function (data) {
 });
 
 
+socket.on('watsonTalk', function (data) {
+  comingBack.innerHTML += '<p><strong>' + data.hbData+ ': </strong></p>'
+  console.log(data.hbData);
+});
 //Here we use this socket to pass the first message from watson 
 socket.on('start',function(data){
       output.innerHTML ='<p>' + data.message+ '</p>'
